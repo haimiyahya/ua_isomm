@@ -22,8 +22,7 @@ defmodule UaIsomm.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:thousand_island, "~> 1.3"},
-      {:ex_iso8583, git: "https://github.com/haimiyahya/ex_iso8583"}
+      {:thousand_island, "~> 1.3"}
     ]
   end
 end
