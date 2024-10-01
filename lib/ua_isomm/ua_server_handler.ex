@@ -3,7 +3,7 @@ defmodule UA.ServerHandler do
     {:ok, tpdu :: term, mti :: term, body :: term}
     | {:error, reason :: term}
 
-  @callback assemble_msg(tpdu :: term, mti :: term, body :: term) ::
+  @callback assemble_msg(tpdu :: term, mti :: term, proc_code :: term, body :: term) ::
     {:ok, msg :: term}
     | {:error, reason :: term}
 
@@ -31,11 +31,11 @@ defmodule UA.ServerHandler do
 
       @impl ThousandIsland.Handler
       def handle_data(data, socket,
-          %{prev_message: prev_message} = state) do
+          %{prev_message: prev_message, txn_handler_module: txn_handler_module} = state) do
 
         {list_of_messages, extra_data} = get_message(prev_message <> data, [])
         Enum.each(list_of_messages,
-          fn msg -> handle_info_tcp(msg, socket) end)
+          fn msg -> handle_info_tcp(msg, socket, txn_handler_module) end)
 
         {:continue, %{state | prev_message: extra_data} }
       end
@@ -45,7 +45,7 @@ defmodule UA.ServerHandler do
         {:continue, state}
       end
 
-      def handle_info_tcp(raw_message, socket) do
+      def handle_info_tcp(raw_message, socket, txn_handler_module) do
 
         <<_header::size(16), data::binary>> = raw_message
         {:ok, tpdu, mti, body} = __MODULE__.disassemble_msg(data)
@@ -53,18 +53,16 @@ defmodule UA.ServerHandler do
         txn_data = Map.put(body, :tpdu, tpdu)
         txn_data = Map.put(txn_data, :mti, mti)
 
-        child_spec = {DMS.TxnHandler,{[],[]}}
+        child_spec = {txn_handler_module,{[],[]}}
         {:ok, pid2} = DynamicSupervisor.start_child(:super, child_spec)
 
-        resp_data = GenServer.call(pid2, {:req_txn, txn_data})
+        resp_tuple = GenServer.call(pid2, {:req_txn, txn_data})
 
-        %{
-          :tpdu => tpdu,
-          :mti => mti,
-          3 => resp_code
-        } = resp_data
+        {:ok, rtpdu, rmti, rproc_code, rtxn_data} = resp_tuple
 
-        __MODULE__.assemble_msg(tpdu, mti, resp_data)
+        msg = __MODULE__.assemble_msg(rtpdu, rmti, rproc_code, resp_data)
+
+        ThousandIsland.Socket.send(socket, msg)
 
       end
 

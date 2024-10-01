@@ -32,18 +32,11 @@ defmodule UA.TxnHandler do
           3 => proc_code
         } = txn_data
 
-        {:ok, rtpdu, rmti, rproc_code, rtxn_data} = __MODULE__.handle_txn(tpdu, mti, proc_code, txn_data)
+        response_tuple = __MODULE__.handle_txn(tpdu, mti, proc_code, txn_data)
 
-        IO.inspect "the result is: "
-        IO.inspect rmti
-        IO.inspect rproc_code
-        IO.inspect rtxn_data
+        # the format of response tuple is like this {:ok, rtpdu, rmti, rproc_code, rtxn_data}
 
-        resp_data = rtxn_data
-        resp_data = Map.put(resp_data, :tpdu, rtpdu)
-        resp_data = Map.put(resp_data, :mti, rmti)
-
-        {:reply, resp_data, state}
+        {:reply, response_tuple, state}
       end
 
     end
