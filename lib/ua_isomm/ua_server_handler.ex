@@ -1,6 +1,6 @@
 defmodule UA.ServerHandler do
   @callback disassemble_msg(msg :: term) ::
-    {:ok, tpdu :: term, mti :: term, body :: term}
+    {:ok, tpdu :: term, mti :: term, proc_code :: term, body :: term}
     | {:error, reason :: term}
 
   @callback assemble_msg(tpdu :: term, mti :: term, proc_code :: term, body :: term) ::
@@ -48,19 +48,16 @@ defmodule UA.ServerHandler do
       def handle_info_tcp(raw_message, socket, txn_handler_module) do
 
         <<_header::size(16), data::binary>> = raw_message
-        {:ok, tpdu, mti, body} = __MODULE__.disassemble_msg(data)
-
-        txn_data = Map.put(body, :tpdu, tpdu)
-        txn_data = Map.put(txn_data, :mti, mti)
+        {:ok, tpdu, mti, proc_code, txn_data} = __MODULE__.disassemble_msg(data)
 
         child_spec = {txn_handler_module,{[],[]}}
         {:ok, pid2} = DynamicSupervisor.start_child(:super, child_spec)
 
-        resp_tuple = GenServer.call(pid2, {:req_txn, txn_data})
+        resp_tuple = GenServer.call(pid2, {:req_txn, tpdu, mti, proc_code, txn_data})
 
         {:ok, rtpdu, rmti, rproc_code, rtxn_data} = resp_tuple
 
-        msg = __MODULE__.assemble_msg(rtpdu, rmti, rproc_code, resp_data)
+        msg = __MODULE__.assemble_msg(rtpdu, rmti, rproc_code, rtxn_data)
 
         ThousandIsland.Socket.send(socket, msg)
 

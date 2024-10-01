@@ -22,7 +22,7 @@ defmodule UaIsomm.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:thousand_island, "~> 1.3.1"}
+      {:thousand_island, "~> 1.3.2"}
     ]
   end
 end

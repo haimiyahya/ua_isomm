@@ -24,13 +24,7 @@ defmodule UA.TxnHandler do
       end
 
       @impl GenServer
-      def handle_call({:req_txn, txn_data}, _from, state) do
-
-        %{
-          :tpdu => tpdu,
-          :mti => mti,
-          3 => proc_code
-        } = txn_data
+      def handle_call({:req_txn, tpdu, mti, proc_code, txn_data}, _from, state) do
 
         response_tuple = __MODULE__.handle_txn(tpdu, mti, proc_code, txn_data)
 
