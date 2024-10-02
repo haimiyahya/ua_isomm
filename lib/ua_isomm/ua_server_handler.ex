@@ -59,6 +59,8 @@ defmodule UA.ServerHandler do
 
         msg = __MODULE__.assemble_msg(rtpdu, rmti, rproc_code, rtxn_data)
 
+        msg = add_msg_header(msg)
+
         ThousandIsland.Socket.send(socket, msg)
 
       end
