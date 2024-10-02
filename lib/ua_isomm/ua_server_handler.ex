@@ -57,7 +57,7 @@ defmodule UA.ServerHandler do
 
         {:ok, rtpdu, rmti, rproc_code, rtxn_data} = resp_tuple
 
-        msg = __MODULE__.assemble_msg(rtpdu, rmti, rproc_code, rtxn_data)
+        {:ok, msg} = __MODULE__.assemble_msg(rtpdu, rmti, rproc_code, rtxn_data)
 
         msg = add_msg_header(msg)
 
