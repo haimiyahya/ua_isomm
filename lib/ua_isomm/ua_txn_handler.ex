@@ -19,7 +19,6 @@ defmodule UA.TxnHandler do
 
       @impl GenServer
       def init(handler_options) do
-        Process.flag(:trap_exit, true)
         {:ok, {nil, handler_options}}
       end
 
@@ -31,11 +30,6 @@ defmodule UA.TxnHandler do
         # the format of response tuple is like this {:ok, rtpdu, rmti, rproc_code, rtxn_data}
 
         {:reply, response_tuple, state}
-      end
-
-      @impl GenServer
-      def handle_call(:exit_txn_handler_process, _from, state) do
-        {:stop, :normal, state}
       end
 
     end
