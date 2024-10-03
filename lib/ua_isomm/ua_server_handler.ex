@@ -72,20 +72,6 @@ defmodule UA.ServerHandler do
         <<msg_size::size(16)>> <> msg_bytes
       end
 
-      def handle_call({:forward_msg, msg}, _from, {socket, state}) do
-
-        ThousandIsland.Socket.send(socket, msg)
-
-        {:noreply, {socket, state}}
-
-      end
-
-      def handle_call(:exit_txn_handler_process, _from, state) do
-
-        {:stop, "normal exit", state}
-
-      end
-
     end
   end
 end

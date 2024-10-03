@@ -33,6 +33,11 @@ defmodule UA.TxnHandler do
         {:reply, response_tuple, state}
       end
 
+      @impl GenServer
+      def handle_call(:exit_txn_handler_process, _from, state) do
+        {:stop, "normal exit", state}
+      end
+
     end
   end
 end
