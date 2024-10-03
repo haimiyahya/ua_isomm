@@ -57,13 +57,15 @@ defmodule UA.ServerHandler do
 
         {:ok, rtpdu, rmti, rproc_code, rtxn_data} = resp_tuple
 
-        GenServer.call(pid2, :exit_txn_handler_process)
+        # GenServer.call(pid2, :exit_txn_handler_process)
 
         {:ok, msg} = __MODULE__.assemble_msg(rtpdu, rmti, rproc_code, rtxn_data)
 
         msg = add_msg_header(msg)
 
         ThousandIsland.Socket.send(socket, msg)
+
+        Process.exit(pid2, :normal)
 
       end
 
