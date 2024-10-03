@@ -63,7 +63,7 @@ defmodule UA.ServerHandler do
 
         ThousandIsland.Socket.send(socket, msg)
 
-        Process.exit(pid2, :normal)
+        Process.exit(pid2, :shutdown)
 
       end
 
