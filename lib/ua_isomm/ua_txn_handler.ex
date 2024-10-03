@@ -35,7 +35,7 @@ defmodule UA.TxnHandler do
 
       @impl GenServer
       def handle_call(:exit_txn_handler_process, _from, state) do
-        {:stop, "normal exit", state}
+        {:stop, :normal, state}
       end
 
     end
